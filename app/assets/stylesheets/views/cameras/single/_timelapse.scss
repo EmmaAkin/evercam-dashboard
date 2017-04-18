@@ -1,4 +1,145 @@
 .tab_timelapse {
+  background-color: $white;
+
+  .video-js .vjs-big-play-button {
+    border-radius: 1em !important;
+    height: 1.6em;
+    left: 50%;
+    margin: -25px 0 0 -25px;
+    top: 50%;
+    width: 1.7em;
+  }
+
+  .vjs-big-play-button {
+    margin-top: 0;
+  }
+
+  .card {
+    box-shadow:0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    background:white;
+    border-radius:2px;
+    overflow: auto;
+    user-select:none;
+    animation:fly-in-from-left .5s 1s ease both;
+    transform-origin:top left;
+    padding: 1.5rem;
+    margin-bottom: 30px;
+    min-height: 340px !Important;
+  }
+
+  .card:nth-child(3n) {
+    margin:0rem 0rem 1rem 0rem;
+  }
+
+  .card:after {
+    position:absolute;
+    font-size:.9rem;
+    top:1.5rem;
+    right:1rem;
+    border:thin solid gray;
+    color:gray;
+    width:1rem;
+    line-height:1rem;
+    text-align:center;
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .card .snapstack {
+    width: 100%;
+    text-align: center;
+    vertical-align:middle;
+    min-height: 100px;
+    height: 280px;
+    margin-bottom: 10px;
+    overflow-y: hidden;
+  }
+
+  .card .snapstack-loading {
+    width: 100%;
+    height: 215px;
+    text-align: center;
+    vertical-align:middle;
+    min-height: 100px;
+    margin-bottom: 10px;
+    overflow-y: hidden;
+    background-image: asset-url('ajaxloader1.gif');
+    background-repeat:no-repeat;
+    background-position:center center;
+  }
+
+  .card .snapstack-error {
+    width: 100%;
+    text-align: center;
+    vertical-align:middle;
+    min-height: 100px;
+    height: 280px;
+    margin-bottom: 10px;
+    overflow-y: hidden;
+    background-image: asset-url('cams.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  .hash-label {
+    color: $grey;
+    font-size: 15px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .camera-time {
+    color: $form-medium-grey;
+    font-size: 14px;
+    height: 26px;
+  }
+
+  .spn-label {
+    color: $grey;
+    float: left;
+    margin-right: 5px;
+    width: 112px;
+  }
+
+  .camera-name {
+    font-size: 12px;
+    margin-left: 5px;
+  }
+
+  .div-snapmail-values {
+    float: left;
+    width: 70%;
+  }
+
+  .delete-timelapse {
+    position: absolute;
+    bottom: 46px;
+    right: 30px;
+    z-index: 100;
+  }
+  .delete-timelapse .icon-button {
+    color: $main-color;
+    cursor: pointer;
+  }
+  .delete-timelapse .icon-button:hover {
+    color: $hover-blue;
+  }
+
+  .timelapse-edit {
+    color: $main-color;
+    cursor: pointer;
+    float: right;
+    margin-right: 19px;
+    margin-top: 0;
+  }
+
+  .timelapse-pause {
+    color: $main-color;
+    cursor: pointer;
+    float: right;
+    margin-right: 10px;
+  }
+
   label {
     font-size: 14px;
   }
@@ -104,7 +245,7 @@
   .video-bg-width{
     background-color: $evercam-black;
     width: 100%;
-    height: 40em;
+    height: 100%;
   }
 
   .timelapse-recordhd{
@@ -220,4 +361,24 @@
     text-decoration: none;
     color: $form-dark-grey;
   }
+
+  .select2-container,
+  .select2-container .select2-selection--single {
+    height: 40px;
+  }
+
+  .select2-container .select2-selection--single .select2-selection__rendered {
+    margin-top: 5px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 35px;
+  }
+}
+
+.timelapse-heading {
+  font-size: 15px;
+  font-family: "proxima-nova-bold", "Open Sans", Arial, Helvetica, sans-serif;
+  margin-bottom: 6px;
+  margin-top: 5px;
 }

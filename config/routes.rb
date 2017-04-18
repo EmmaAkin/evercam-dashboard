@@ -58,6 +58,8 @@ Rails.application.routes.draw do
   get '/v1/snapmails/:id/unsubscribe' => 'pages#unsubscribe'
   post '/v1/snapmails/:id/unsubscribe' => 'pages#unsubscribed', as: :unsubscribed_snapmail
 
+  get '/timelapses' => 'timelapses#index', as: :timelapses_index
+
   get '/v1/public/cameras' => redirect('https://evercam.io/public/cameras/')
   get '/v1/public/cameras/:id' => redirect('https://evercam.io/public/cameras/')
 

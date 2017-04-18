@@ -1,4 +1,6 @@
+videojs_array = {}
 format_time = null
+camera_select = null
 
 initNotification = ->
   Notification.init(".bb-alert")
@@ -9,7 +11,6 @@ loadTimelapses = ->
     Notification.show("Failed to retrive timelapses.")
 
   onSuccess = (timelapses, status, jqXHR) ->
-    #$("#divTimelapses").append(getHtml(timelapse));
     if timelapses.length is 0
       #$("#divLoadingApps").show()
     else
@@ -23,151 +24,63 @@ loadTimelapses = ->
     error: onError
     success: onSuccess
     type: 'GET'
-    url: "#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/timelapses?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
-
+    url: "#{Evercam.API_URL}timelapses?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
+  # cameras/#{Evercam.Camera.id}/
   $.ajax(settings)
 
 initPlugins = (timelapse) ->
-  $("#tab#{timelapse.id} .radio_edit").iCheck
-    radioClass: "iradio_flat-blue"
-  $("#tab#{timelapse.id} .daterange").datetimepicker({timepicker: false, format: 'd/m/Y'})
-  initTimepicker("#tab#{timelapse.id} .timerange")
-  videojs "video-control-#{timelapse.id}", { }
+  # $("#tab#{timelapse.id} .radio_edit").iCheck
+  #  radioClass: "iradio_flat-blue"
+  # $("#tab#{timelapse.id} .daterange").datetimepicker({timepicker: false, format: 'd/m/Y'})
+  # initTimepicker("#tab#{timelapse.id} .timerange")
+  videojs_array["#{timelapse.id}"] = videojs "video-control-#{timelapse.id}", { }
+  initPopup(timelapse.id)
+
+initPopup = (key) ->
+  $("#pop-#{key}").popbox
+    open: "#open-#{key}"
+    box: "#box-#{key}"
+    arrow: "#arrow-#{key}"
+    arrow_border: "#arrow-border-#{key}"
+    close: "#close-popup-#{key}"
 
 getTimelapseHtml = (timelapse, index) ->
-  html = "    <div id='tab#{timelapse.id}' class='padding-bottom10'>"
-  html += "        <div class='header-bg col-sm-12 padding-left0'>"
-  html += "          <div class='col-sm-12 box-header-padding' data-val='#{timelapse.id}'>"
-  html += "              <div id='timelapseTitle#{timelapse.id}' class='col-sm-6 timelapse-label'><div class='camera-online'></div>#{timelapse.title}&nbsp;<span class='timelapse-camera-name hide'>#{timelapse.camera_name}</span></div>"
-  html += "              <div id='timelapseStatus#{timelapse.id}' class='col-sm-6 timelapse-label-status text-right'><span class='green'>#{timelapse.status}</span></div>"
-  html += "          </div>"
-  html += "          <div id='divContainer#{timelapse.id}' class='box-content-padding' style='display: none;'>"
-  html += "              <div>"
-  html += "                  <table class='tbl-tab' cellpadding='0' cellspacing='0'>"
-  html += "                      <thead>"
-  html += "                          <tr><th>"
-  html += "                              <div class='tbl-hd2'><a class='tab-a block#{timelapse.id} selected-tab' href='javascript:;' data-ref='#divVideoContainer#{timelapse.id}' data-val='#{timelapse.id}'>View Video</a></div>"
-  html += '                              <div class="tbl-hd2"><a class="tab-a block' + timelapse.id + '" href="javascript:;" data-ref="#stats' + timelapse.id + '" data-val="' + timelapse.id + '">Stats</a></div>'
-  # html += '                              <div class="tbl-hd2"><a class="tab-a block' + timelapse.id + '" href="javascript:;" data-ref="#embedcode' + timelapse.id + '" data-val="' + timelapse.id + '">Embed Code</a></div>'
-  html += '                              <div class="tbl-hd2"><a class="tab-a block' + timelapse.id + '" href="javascript:;" data-ref="#setting' + timelapse.id + '" data-val="' + timelapse.id + '">Settings&nbsp;&nbsp;<i class="icon-cog"></i></a></div>'
-  html += '                          </th></tr>'
-  html += '                       </thead>'
-  html += '                       <tbody>'
-  html += '                           <tr><td colspan="12" height="10px"></td></tr>'
-  html += '                               <tr>'
-  html += '                                   <td id="cameraCode' + timelapse.id + '" colspan="12">'
-  html += '                                       <div id="divVideoContainer' + timelapse.id + '" class="active">'
-  html += "                                         <video data-setup='{ \"playbackRates\": [0.06, 0.12, 0.25, 0.5, 1, 1.5, 2, 2.5, 3] }' poster='#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/thumbnail?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}' preload=\"none\" controls class=\"video-js vjs-default-skin video-bg-width\" id=\"video-control-#{timelapse.id}\">"
-  html += "                                             <source type='application/x-mpegURL' src='#{Evercam.SEAWEEDFS_URL}#{timelapse.camera_id}/timelapses/#{timelapse.id}/index.m3u8'></source>"
-  html += "                                         </video>"
-  html += '                                       </div>'
-  html += '                                       <div id="stats' + timelapse.id + '" style="display: none;">'
-  html += '                                         <div class="timelapse-content-box">'
-  html += '                                           <table class="table table-full-width" style="margin-bottom:0px;">'
-  html += '                                             <tr><td class="col-sm-2">Total Snapshots: </td><td class="col-sm-3" id="tdSnapCount' + timelapse.id + '">' + (if timelapse.snapshot_count is null then 0 else timelapse.snapshot_count) + '</td><td class="col-sm-3" style="padding:0px;text-align:right;" align="right"><span id="imgRef' + timelapse.id + '" style="display:none;cursor:pointer;width:25px;height:25px;" data-val="' + timelapse.id + '"><i id="snaps" class="fa fa-refresh" aria-hidden="true"></i></span></td></tr>'
-  html += '                                             <tr><td>File Size: </td><td colspan="2"  id="tdFileSize' + timelapse.id + '">' + 0 + '</td></tr>'
-  html += '                                             <tr><td>Resolution: </td><td colspan="2"  id="tdResolution' + timelapse.id + '">' + (if timelapse.snapshot_count == 0 then '640x480' else "") + '640x480px</td></tr>'
-  html += '                                             <tr><td>Created At: </td><td colspan="2"  id="tdCreated' + timelapse.id + '">' + format_time.formatDate((new Date(timelapse.created_at*1000)), "d M Y, H:i:s") + '</td></tr>'
-  html += '                                             <tr><td>Last Snapshot At: </td><td colspan="2"  id="tdLastSnapDate' + timelapse.id + '">' + (if timelapse.snapshot_count == 0 then '---' else format_time.formatDate((new Date(timelapse.last_snapshot_at*1000)), "d M Y, H:i:s")) + '</td></tr>'
-  html += "                                             <tr><td>HLS URL: </td><td class='hls-url-right' id='tdHlsUrl#{timelapse.id}'><input id='txtHlsUrl#{timelapse.id}' type='text' readonly class='txt-width' value='#{Evercam.SEAWEEDFS_URL}#{timelapse.camera_id}/timelapses/#{timelapse.id}/index.m3u8'/>"
-  html += '                                               <span class="copy-to-clipboard" data-val="' + timelapse.id + '" alt="Copy to clipboard" title="Copy to clipboard"><i class="fa fa-files-o" aria-hidden="true"></i></span></td><td class="hls-url-left"></td></tr>'
-  html += '                                             <tr><td>Timelapse Status: </td><td colspan="2"  id="tdStatus' + timelapse.id + '"><span style="margin-right:10px;" id="spnStatus' + timelapse.id + '">' + (if timelapse.status == 3 then 'Timelapse Stopped' else "Now Recordings") + '</span><button id="" type="button" data-val="' + timelapse.id + '" class="btn toggle-status" status="' + (if timelapse.status is "Paused" then 'start' else 'stop') + '">' + (if timelapse.status is "Paused" then '<i class="fa fa-play"></i> Start' else '<i class="fa fa-stop"></i> Stop') + '</button></td></tr>'
-  # html += '                                           <tr><td>Rebuild Timelapse: </td><td colspan="2"  id="tdRebuild-timelaspse' + timelapse.id + '"><span id="spnRebuild-timelaspse' + timelapse.id + '">' + '</span><button type="button" id="btnRecreate' + timelapse.id + '" class="btn recreate-stream" ' + (if timelapse.recreate_hls then 'disabled="disabled"' else '') + ' camera-code="' + timelapse.id + '">' + '<i class="fa fa-retweet" aria-hidden="true"></i>' + '</button>&nbsp;&nbsp;<span id="spnRecreate' + timelapse.id + '" class="' + (if timelapse.recreate_hls then '' else 'hide') + '">Your request is under processing.</span></td></tr></table>'
-  html += '                                           </table>'
-  html += '                                       </div></div>'
-  html += '                                       <div id="embedcode' + timelapse.id + '" style="display: none;">'
-  html += '                                           <pre id="code' + timelapse.id + '" class="pre-width">&lt;div id="hls-video"&gt;&lt;/div&gt;<br/>'
-  html += '&lt;script src="http://timelapse.evercam.io/timelapse_widget.js" class="' + timelapse.camera_id + ' ' + timelapse.id + ' ' + timelapse.id + '"&gt;&lt;/script&gt;</pre><br/>'
-  html += '                                       </div>'
+  html = "   <div id='dataslot#{timelapse.id}' class='list-border margin-bottom10'>"
+  html += "    <div class='col-xs-12 col-sm-6 col-md-4' style='min-height:0px;'>"
+  html += "    <div class='card' style='min-height:0px;'>"
+  html += "      <div class='snapstack-loading' id='snaps-#{timelapse.id}'>"
+  html += "        <video data-setup='{ \"playbackRates\": [0.06, 0.12, 0.25, 0.5, 1, 1.5, 2, 2.5, 3] }' poster='#{Evercam.API_URL}cameras/#{timelapse.camera_id}/thumbnail?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}' preload=\"none\" controls class=\"video-js vjs-default-skin video-bg-width\" id=\"video-control-#{timelapse.id}\">"
+  html += "          <source type='application/x-mpegURL' src='#{Evercam.SEAWEEDFS_URL}#{timelapse.camera_id}/timelapses/#{timelapse.id}/index.m3u8'></source>"
+  html += "        </video>"
+  html += "      </div>"
+  html += "      <input type='hidden' id='timelapse-title#{timelapse.id}' value='#{timelapse.title}'/><input type='hidden' id='timelapse-camera-id#{timelapse.id}' value='#{timelapse.camera_id}'/><input type='hidden' id='timelapse-frequency#{timelapse.id}' value='#{timelapse.frequency}' />"
+  html += "      <input type='hidden' id='txt_from_date#{timelapse.id}' value='#{timelapse.from_date}'/><input type='hidden' id='txt_to_date#{timelapse.id}' value='#{timelapse.to_date}'/><input type='hidden' id='txt_date_always#{timelapse.id}' value='#{timelapse.date_always}'/><input type='hidden' id='txt_time_always#{timelapse.id}' value='#{timelapse.time_always}'/>"
+  html += "      <div class='hash-label snapmail-title'><a data-toggle='modal' data-target='#snapmail-form' class='tools-link edit-snapmail' data-val='#{timelapse.id}' title='#{timelapse.title}'>#{timelapse.title}</a><span class='camera-name'>#{timelapse.camera_name}</span><span class='line-end'></span></div>"
+  html += "      <div class='camera-time'><span class='spn-label'>Total Snapshots:</span><div class='div-snapmail-values'>#{(if timelapse.snapshot_count is null then 0 else timelapse.snapshot_count)}</div><div class='clear-f'></div></div>"
+  html += "      <div class='camera-time'><span class='spn-label'>Resolution:</span><div class='div-snapmail-values'>#{(if timelapse.snapshot_count == 0 then '640x480' else "")}</div><div class='clear-f'></div></div>"
+  html += "      <div class='camera-time'><span class='spn-label'>Created At:</span><div class='div-snapmail-values'>#{format_time.formatDate((new Date(timelapse.created_at*1000)), "d M Y, H:i:s")}</div><div class='clear-f'></div></div>"
+  html += "      <div class='camera-time'><span class='spn-label'>Last Snapshot At:</span><div class='div-snapmail-values'>#{(if timelapse.snapshot_count == 0 then '---' else format_time.formatDate((new Date(timelapse.last_snapshot_at*1000)), "d M Y, H:i:s"))}</div><div class='clear-f'></div></div>"
+  html += "      <div class='timelapse-edit'><i class='fa fa-edit main-color plus-btn tools-link edit-timelapse' title='Edit Timelapse' data-val='#{timelapse.id}'></i></div>"
+  html += "      <div class='timelapse-pause'>"
+  html += "        <i class='fa #{(if timelapse.status is "Paused" then "fa-play" else "fa-pause")} main-color plus-btn tools-link toggle-status' title='#{(if timelapse.status is "Paused" then "Resume" else "Pause")} Timelapse' status='#{(if timelapse.status is "Paused" then "start" else "stop")}' camera-id='#{timelapse.camera_id}' data-val='#{timelapse.id}'></i>"
+  html += "      </div>"
+  html += "    </div>"
 
-  html += "                                       <div id='setting#{timelapse.id}' style='display: none;'>"
-  html += '                                         <div class="timelapse-content-box">'
-  html += "                                           <table class='table' style='margin-bottom:0px;'>"
-  html += "                                             <tr><td class='col-sm-2'>Title: </td><td class='col-sm-3'><input type='text' id='timelapse-title#{timelapse.id}' value='#{timelapse.title}' required='required' class='form-control'/></td><td class='col-sm-3'></td><tr>"
-  html += "                                             <tr><td>Interval: </td><td><select id='timelapse-frequency#{timelapse.id}' class='form-control'>"
-  html += "                                               <option value='0'>Select Interval</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 1)} value='1'>1 Frame Every 1 min</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 5)} value='5'>1 Frame Every 5 min</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 15)} value='15'>1 Frame Every 15 min</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 30)} value='30'>1 Frame Every 30 min</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 60)} value='60'>1 Frame Every 1 hour</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 360)} value='360'>1 Frame Every 6 hours</option>"
-  html += "                                               <option #{select_frequency(timelapse.frequency, 720)} value='720'>1 Frame Every 12 hours</option></select></td><td></td>"
-  html += "                                             </tr>"
-  html += "                                             <tr>"
-  html += "                                               <td><label>Date Range:</label></td>"
-  html += "                                               <td>"
-  html += "                                                 <div class='col-sm-4 radio-list padding-left0'>"
-  html += "                                                   <label class='radio-inline'>"
-  html += "                                                     <input id='chkDateRangeAlways' name='date_range_edit#{timelapse.id}' data-val='#{timelapse.id}' type='radio' #{select_date_time_range(timelapse.date_always, true)} value='true' class='icheck radio_edit date_range_edit'/>&nbsp;Always"
-  html += "                                                   </label>"
-  html += "                                                 </div>"
-  html += "                                                 <div class='col-sm-4 radio-list'>"
-  html += "                                                   <label class='radio-inline'>"
-  html += "                                                     <input id='chkDateRange' name='date_range_edit#{timelapse.id}' data-val='#{timelapse.id}' type='radio' #{select_date_time_range(timelapse.date_always, false)} value='false' class='icheck radio_edit date_range_edit'/>&nbsp;Range"
-  html += "                                                   </label>"
-  html += "                                                 </div>"
-  html += "                                               </td>"
-  html += "                                               <td></td>"
-  html += "                                             </tr>"
-
-  html += "                                             <tr class='range-row'>"
-  html += "                                               <td></td>"
-  html += "                                               <td colspan='2'>"
-  html += "                                                 <div id='row_date_range#{timelapse.id}' style='display: #{if timelapse.date_always then "none" else "block"};'>"
-  html += "                                                   <div class='col-sm-3 padding-left0'><input type='text' id='txt_from_date#{timelapse.id}' class='form-control daterange' value='#{setDate(timelapse.date_always, timelapse.from_date, "d/m/Y", "")}' placeholder='From Date'></div>"
-  html += "                                                   <div class='col-sm-3 padding-left0'><input type='text' id='txt_to_date#{timelapse.id}' class='form-control daterange' value='#{setDate(timelapse.date_always, timelapse.to_date, "d/m/Y", "")}' placeholder='To Date'></div>"
-  html += "                                                 </div>"
-  html += "                                               </td>"
-  html += "                                             </tr>"
-  html += "                                             <tr>"
-  html += "                                               <td><label>Time Range:</label></td>"
-  html += "                                               <td>"
-  html += "                                                 <div class='col-sm-4 radio-list padding-left0'>"
-  html += "                                                   <label class='radio-inline'>"
-  html += "                                                     <input id='chkTimeRangeAlways' name='time_range_edit#{timelapse.id}' data-val='#{timelapse.id}' #{select_date_time_range(timelapse.time_always, true)} type='radio' value='true' class='icheck radio_edit time_range_edit' />&nbsp;Always"
-  html += "                                                   </label>"
-  html += "                                                 </div>"
-  html += "                                                 <div class='col-sm-4 radio-list'>"
-  html += "                                                   <label class='radio-inline'>"
-  html += "                                                     <input id='chkTimeRange' name='time_range_edit#{timelapse.id}' data-val='#{timelapse.id}' #{select_date_time_range(timelapse.time_always, false)} type='radio' value='false' class='icheck radio_edit time_range_edit' />&nbsp;Range"
-  html += "                                                   </label>"
-  html += "                                                 </div>"
-  html += "                                               </td>"
-  html += "                                               <td></td>"
-  html += "                                             </tr>"
-  html += "                                             <tr class='range-row'>"
-  html += "                                               <td></td>"
-  html += "                                               <td colspan='2'>"
-  html += "                                                 <div id='row_time_range#{timelapse.id}' style='display: #{if timelapse.time_always then "none" else "block"};padding-top:5px;'>"
-  html += "                                                   <div class='col-sm-3 padding-left0'><input type='text' id='txt_from_time#{timelapse.id}' class='form-control timerange' placeholder='From Time' readonly value='#{setDate(timelapse.time_always, timelapse.from_date, "H:i", "00:00")}'></div>"
-  html += "                                                   <div class='col-sm-3 padding-left0'><input type='text' id='txt_to_time#{timelapse.id}' class='form-control timerange' placeholder='To Time' readonly value='#{setDate(timelapse.time_always, timelapse.to_date, "H:i", "23:59")}'></div>"
-  html += "                                                 </div>"
-  html += "                                               </td>"
-  html += "                                             </tr>"
-  #html += "                                             <tr><td colspan='3'>&nbsp;</td></tr>"
-  html += "                                             <tr>"
-  html += "                                               <td></td>"
-  html += "                                               <td colspan='2'>"
-  html += "                                                 <button type='button' class='btn btn-primary edit-timelapse' data-val='#{timelapse.id}'><i class='fa fa-check'></i> Save</button>"
-  html += "                                                 <button type='button' class='btn btn-danger delete-timelapse' data-val='#{timelapse.id}'><i class='fa fa-remove'></i> Delete</button>"
-  html += "                                               </td>"
-  html += "                                             </tr>"
-  html += "                                           </table>"
-  html += "                                       </div></div>"
-  html += '                                   </td>'
-  html += '                               </tr>'
-  html += '                           </tbody>'
-  html += '                       </table>'
-  html += '                   </div>'
-  html += '               </div>'
-  html += '           </div></div>'
-  #***********************************************************************************************************
-  #if data.snaps_count == 0
-  #  setTimeout (->
-  #    reloadStats data.code, null
-  #    return
-  #  ), 1000 * 60
+  html += "    <div style='min-height:0px;'>"
+  html += "        <div class='text-right delete-timelapse'>"
+  html += "             <span id='pop-#{timelapse.id}' class='popbox2'><div id='open-#{timelapse.id}' href='javascript:;' class='tools-link open2' data-val='#{timelapse.id}'><div class='icon-button red margin-24 margin-left-0'><i class='fa fa-trash-o main-color plus-btn' title='Delete'></i><paper-ripple class='circle recenteringTouch' fit></paper-ripple></div></div>"
+  html += "             <div class='collapse-popup'>"
+  html += "               <div class='box-snapmail' id='box-#{timelapse.id}' style='width:288px;'>"
+  html += "                   <div class='arrow2' id='arrow-#{timelapse.id}'></div>"
+  html += "                   <div class='arrow-border2' id='arrow-border-#{timelapse.id}'></div>"
+  html += "                   <div class='margin-bottom-10'>Are you sure?</div>"
+  html += "                   <div class='margin-bottom-10'><input class='btn btn-primary delete-btn' type='button' value='Yes, Remove' camera-id='#{timelapse.camera_id}' data-val='#{timelapse.id}'/><div id='close-popup-#{timelapse.id}' class='btn closepopup2 grey' fit><div class='text-center'>Cancel</div></div></div>"
+  html += "               </div>"
+  html += "             </div></span>"
+  html += "       </div>"
+  html += "       </div>"
+  html += "    </div>"
+  html += "</div>"
   html
 
 select_frequency = (frequency, option) ->
@@ -234,33 +147,14 @@ copyToClipboard = ->
       target.textContent = ''
     succeed
 
-show_hide_timelapse = ->
-  $('#divTimelapses').on "click", ".box-header-padding", ->
-    id = $(this).attr('data-val')
-    if $("#divContainer#{id}").css('display') == 'none'
-      $("#divContainer#{id}").slideDown 500
-    else
-      $("#divContainer#{id}").slideUp 500
-
-tab_click = ->
-  $('#divTimelapses').on 'click', ".tab-a", ->
-    clickedTab = $(this)
-    id = clickedTab.attr('data-val')
-    if clickedTab.html().indexOf('Settings') >= 0
-      container_id = "#setting#{id}"
-      #if $(container_id).html() == ''
-        #getEditTimelapseForm id
-    $(".block#{id}").removeClass "selected-tab"
-    clickedTab.addClass "selected-tab"
-    $("#cameraCode#{id} div.active").fadeOut 100, ->
-      $(this).removeClass "active"
-      $(clickedTab.attr("data-ref")).fadeIn 100, ->
-        $(this).addClass "active"
-
 saveTimelapse = ->
   $('#save-timelapse').on 'click', ->
     save_button = $(this)
     $(".bb-alert").removeClass("alert-info").addClass("alert-danger")
+
+    if $("#timelapse-camera").val() is ''
+      Notification.show("Please select camera to continue.")
+      return false
 
     if $("#timelapse-title").val() is ''
       Notification.show("Please enter timelapse title.")
@@ -313,10 +207,10 @@ saveTimelapse = ->
     save_button.attr 'disabled', true
 
     onError = (jqXHR, status, error) ->
-      if jqXHR.status is 500
-        Notification.show "500 Internal Server Error"
+      response = JSON.parse(jqXHR.responseText)
+      if jQuery.type(response.message) is "object"
+        Notification.show "#{response["message"]}"
       else
-        response = JSON.parse(jqXHR.responseText)
         Notification.show "#{response.message}"
       save_button.removeAttr('disabled')
 
@@ -324,23 +218,32 @@ saveTimelapse = ->
       timelapse = result.timelapses[0]
       $(".bb-alert").removeClass("alert-danger").addClass("alert-info")
       save_button.removeAttr('disabled')
+      if $("#txt_timelapse_id").val() isnt ""
+        player = videojs_array["#{timelapse.id}"]
+        player.dispose()
+      $("#dataslot#{timelapse.id}").remove()
       $('#divTimelapses').prepend getTimelapseHtml(timelapse, 0)
       initPlugins(timelapse)
-      #videojs("#divVideoContainer#{timelapse.id}")
       $("#timelapse-form").modal("hide")
       clearForm()
+
+    method = "POST"
+    sub_url = ""
+    if $("#txt_timelapse_id").val() isnt ""
+      method = "PATCH"
+      sub_url = "/#{$("#txt_timelapse_id").val()}"
 
     settings =
       data: o
       dataType: 'json'
       error: onError
       success: onSuccess
-      type: "POST"
-      url: "#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/timelapses?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
+      type: method
+      url: "#{Evercam.API_URL}cameras/#{$("#timelapse-camera").val()}/timelapses#{sub_url}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
 
     $.ajax(settings)
 
-editTimelapse = ->
+editTimelapse2 = ->
   $('#divTimelapses').on 'click', '.edit-timelapse', ->
     save_button = $(this)
     timelapse_id = $(this).attr("data-val")
@@ -422,11 +325,12 @@ editTimelapse = ->
     $.ajax(settings)
 
 deleteTimelapse = ->
-  $('#divTimelapses').on 'click', '.delete-timelapse', ->
+  $('#divTimelapses').on 'click', '.delete-btn', ->
     timelapse_id = $(this).attr("data-val")
+    camera_id = $(this).attr("camera-id")
     onError = (jqXHR, status, error) ->
-      if jqXHR.status is 500
-        Notification.show "500 Internal Server Error"
+      if jqXHR.status is 403
+        Notification.show "You don't have sufficient permission."
       else
         response = JSON.parse(jqXHR.responseText)
         Notification.show "#{response.message}"
@@ -434,7 +338,9 @@ deleteTimelapse = ->
     onSuccess = (result, status, jqXHR) ->
       $(".bb-alert").removeClass("alert-danger").addClass("alert-info")
       Notification.show('Timelapse deleted successfully.')
-      $("#tab#{timelapse_id}").remove()
+      player = videojs_array["#{timelapse_id}"]
+      player.dispose()
+      $("#dataslot#{timelapse_id}").remove()
 
     settings =
       data: {}
@@ -442,39 +348,70 @@ deleteTimelapse = ->
       error: onError
       success: onSuccess
       type: "DELETE"
-      url: "#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/timelapses/#{timelapse_id}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
+      url: "#{Evercam.API_URL}cameras/#{camera_id}/timelapses/#{timelapse_id}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
 
     $.ajax(settings)
+
+editTimelapse = ->
+  $('#divTimelapses').on 'click', '.edit-timelapse', ->
+    timelapse_id = $(this).attr("data-val")
+    camera_select.val($("#timelapse-camera-id#{timelapse_id}").val()).trigger("change")
+    $("#timelapse-title").val($("#timelapse-title#{timelapse_id}").val())
+    $("#timelapse-frequency").val($("#timelapse-frequency#{timelapse_id}").val())
+    from_date = $("#txt_from_date#{timelapse_id}").val()
+    to_date = $("#txt_to_date#{timelapse_id}").val()
+    $("#txt_timelapse_id").val(timelapse_id)
+
+    if $("#txt_date_always#{timelapse_id}").val() is "false"
+      $('#chkDateRange').iCheck('check');
+      $("#txt_from_date").val(setDate(false, from_date, "d/m/Y", ""))
+      $("#txt_to_date").val(setDate(false, to_date, "d/m/Y", ""))
+      $("#row_date_range").slideDown()
+    else
+      $('#chkDateRangeAlways').iCheck('check');
+      $("#txt_from_date").val("")
+      $("#txt_to_date").val("")
+
+    if $("#txt_time_always#{timelapse_id}").val() is "true"
+      $('#chkTimeRangeAlways').iCheck('check');
+      $("#txt_from_time").val("00:00")
+      $("#txt_to_time").val("23:59")
+    else
+      $('#chkTimeRange').iCheck('check');
+      $("#txt_from_time").val(setDate(false, from_date, "H:i", "00:00"))
+      $("#txt_to_time").val(setDate(false, to_date, "H:i", "00:00"))
+      $("#row_time_range").slideDown()
+
+    $('#timelapse-form .caption').html 'Edit Timelapse'
+    $("#timelapse-form").modal("show")
 
 toggleStatus = ->
   $('#divTimelapses').on 'click', '.toggle-status', ->
     control = $(this)
     timelapse_id = $(this).attr("data-val")
+    camera_id = $(this).attr("camera-id")
     if $(this).attr("status") is 'stop'
       timelapse_status = 3
     else
       timelapse_status = 0
 
     onError = (jqXHR, status, error) ->
-      if jqXHR.status is 500
-        Notification.show "500 Internal Server Error"
+      if jqXHR.status is 403
+        Notification.show "You don't have sufficient permission."
       else
         response = JSON.parse(jqXHR.responseText)
         Notification.show "#{response.message}"
+
 
     onSuccess = (result, status, jqXHR) ->
       # snapMail = result.timelapses[0]
       $(".bb-alert").removeClass("alert-danger").addClass("alert-info")
       if timelapse_status is 3
-        $("#timelapseStatus#{timelapse_id}").html('<span class="green">Paused</span>')
-        $("#spnStatus#{timelapse_id}").text("Timelapse Stopped")
         control.attr('status', 'start')
-        control.html('<i class="fa fa-play"></i> Start')
+        control.removeClass("fa-pause").addClass("fa-play")
       else
-        $("#timelapseStatus#{timelapse_id}").html('<span class="green">Active</span>')
-        $("#spnStatus#{timelapse_id}").html("Recording now...")
         control.attr('status', 'stop')
-        control.html('<i class="fa fa-stop"></i> Stop')
+        control.removeClass("fa-play").addClass("fa-pause")
 
     settings =
       data: {status: timelapse_status}
@@ -482,11 +419,13 @@ toggleStatus = ->
       error: onError
       success: onSuccess
       type: "PATCH"
-      url: "#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/timelapses/#{timelapse_id}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
+      url: "#{Evercam.API_URL}cameras/#{camera_id}/timelapses/#{timelapse_id}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
 
     $.ajax(settings)
 
 clearForm = ->
+  camera_select.val("").trigger("change")
+  $("#txt_timelapse_id").val("")
   $("#timelapse-title").val("")
   $("#timelapse-frequency").val("0")
   $("#txt_from_date").val("")
@@ -547,17 +486,40 @@ handleModelEvents = ->
   $("#timelapse-form").on "hide.bs.modal", ->
     clearForm()
 
+initSelect2 = ->
+  camera_select = $('#timelapse-camera').select2
+    placeholder: 'Select Camera',
+    allowClear: true,
+    templateSelection: format,
+    templateResult: format
+
+format = (state) ->
+  if !state.id
+    return state.text
+  if state.id == '0'
+    return state.text
+  if state.element
+    if state.element.attributes[1].value is "false"
+      camera_status = "<i class='red main-sidebar fa fa-chain-broken'></i>"
+    else
+      camera_status = ""
+    return $("<span><img id='#{state.id}' style='width: 25px;height: auto;' src='#{state.element.attributes[2].value}' class='gravatar1'/>&nbsp;#{state.text}#{camera_status}</span>")
+  else
+    state.text
+
 window.initializeTimelapse = ->
   loadTimelapses()
   show_hide_datetime()
   initTimepicker(".timerange")
   handleModelEvents()
   saveTimelapse()
-  show_hide_timelapse()
-  tab_click()
   editTimelapse()
   toggleStatus()
   deleteTimelapse()
   copyToClipboard()
+  initNotification()
+  initSelect2()
+  $("input[type=radio]").iCheck
+    radioClass: "iradio_flat-blue"
   $('.daterange').datetimepicker({timepicker: false, format: 'd/m/Y'})
   format_time = new DateFormatter()

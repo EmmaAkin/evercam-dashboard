@@ -16,7 +16,20 @@
                       <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" class="form-horizontal">
                         <table class="table table-fixed table-borderless">
                           <tr>
-                            <td class="col-xs-2 col-sm-2 pading-left-0"><label>Title:</label></td>
+                            <td class="col-xs-2 col-sm-2 pading-left-0"><label>Camera:</label></td>
+                            <td colspan="2">
+                              <select id="timelapse-camera" class="form-control" style="width: 100%;height: 40px;">
+                                <option value="">Select Camera</option>
+                                <% @cameras.each do |camera| %>
+                                  <option value="<%= camera['id'] %>" status="<%= camera['is_online'] %>" thumbnail="<%= "#{EVERCAM_MEDIA_API}cameras/#{camera['id']}/thumbnail?api_id=#{current_user.api_id}&api_key=#{current_user.api_key}" %>">
+                                    <%= camera["name"] %>
+                                  </option>
+                                  <% end %>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><label>Title:</label></td>
                             <td colspan="2">
                               <input type="text" name="timelapse-title" id="timelapse-title" required="required" class="form-control"
                                      placeholder="Timelapse Title"/>
@@ -247,6 +260,7 @@
               <div class="col-md-12 pull-left form-group"><label for="add-button"></label>
                 <button id="save-timelapse" type="button" class="btn btn-primary"><i class="fa fa-check"></i> Save</button>
                 <button id="btn-cancel" type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-remove"></i> Cancel</button>
+                <input type="hidden" id="txt_timelapse_id">
               </div>
             </div>
           </fieldset>
@@ -255,19 +269,12 @@
     </div>
   </div>
 
-  <div class="timelapse-form" style="display: none;">
-    <div class="row">
-      <div class="col-sm-12">
+  <div id="divTimelapses" class=""></div>
 
-      </div>
-    </div>
-  </div>
-
-  <div id="new-timelapse-btn1" class="margin-bottom-10 padding-top-7">
+  <div id="new-timelapse-btn1" class="col-sm-12 margin-bottom-10">
     <div class="btn btn-primary" data-toggle="modal" data-target="#timelapse-form">
       Create a new Timelapse
     </div>
   </div>
-
-  <div id="divTimelapses"></div>
+  <div class="clear-f"></div>
 </div>
