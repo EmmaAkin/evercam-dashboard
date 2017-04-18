@@ -29,10 +29,6 @@ loadTimelapses = ->
   $.ajax(settings)
 
 initPlugins = (timelapse) ->
-  # $("#tab#{timelapse.id} .radio_edit").iCheck
-  #  radioClass: "iradio_flat-blue"
-  # $("#tab#{timelapse.id} .daterange").datetimepicker({timepicker: false, format: 'd/m/Y'})
-  # initTimepicker("#tab#{timelapse.id} .timerange")
   videojs_array["#{timelapse.id}"] = videojs "video-control-#{timelapse.id}", { }
   initPopup(timelapse.id)
 
@@ -243,87 +239,6 @@ saveTimelapse = ->
 
     $.ajax(settings)
 
-editTimelapse2 = ->
-  $('#divTimelapses').on 'click', '.edit-timelapse', ->
-    save_button = $(this)
-    timelapse_id = $(this).attr("data-val")
-    $(".bb-alert").removeClass("alert-info").addClass("alert-danger")
-
-    if $("#timelapse-title#{timelapse_id}").val() is ''
-      Notification.show("Please enter timelapse title.")
-      return false
-
-    if $("#timelapse-frequency#{timelapse_id}").val() is "0"
-      Notification.show("Please select timelapse interval.")
-      return false
-
-    d = new Date()
-    fromDate = "#{(d.getMonth()+1)}/#{d.getDate()}/#{d.getFullYear()}"
-    toDate = fromDate
-    fromTime = "00:00"
-    toTime = fromTime
-    dateAlways = $("input[name=date_range_edit#{timelapse_id}]:checked").val()
-    timeAlways = $("input[name=time_range_edit#{timelapse_id}]:checked").val()
-    if dateAlways is "false"
-      fromDate = change_date_format($("#txt_from_date#{timelapse_id}").val())
-      if fromDate is ""
-        Notification.show("Please select from date range.")
-        return false
-      toDate = change_date_format($("#txt_to_date#{timelapse_id}").val())
-      if toDate is ""
-        Notification.show("Please select to date range.")
-        return false
-
-    if timeAlways is "false"
-      fromTime = $("#txt_from_time#{timelapse_id}").val()
-      if fromTime is ""
-        Notification.show("Please select from time range.")
-        return false
-
-      toTime = $("#txt_to_time#{timelapse_id}").val()
-      if toTime is ""
-        Notification.show("Please select to time range.")
-        return false
-
-      if fromTime is toTime
-        Notification.show('To time and from time cannot be same.')
-        return false
-
-    o =
-      title: $("#timelapse-title#{timelapse_id}").val()
-      date_always: dateAlways
-      time_always: timeAlways
-      frequency: $("#timelapse-frequency#{timelapse_id}").val()
-      from_datetime: (new Date("#{fromDate} #{fromTime}"))/1000
-      to_datetime: (new Date("#{toDate} #{toTime}"))/1000
-
-    save_button.attr 'disabled', true
-
-    onError = (jqXHR, status, error) ->
-      if jqXHR.status is 500
-        Notification.show "500 Internal Server Error"
-      else
-        response = JSON.parse(jqXHR.responseText)
-        Notification.show "#{response.message}"
-      save_button.removeAttr('disabled')
-
-    onSuccess = (result, status, jqXHR) ->
-      snapMail = result.timelapses[0]
-      $(".bb-alert").removeClass("alert-danger").addClass("alert-info")
-      Notification.show('Timelapse updated.')
-      save_button.removeAttr('disabled')
-      # $('#divSnapmails').prepend getSnapmailHtml(snapMail, index)
-
-    settings =
-      data: o
-      dataType: 'json'
-      error: onError
-      success: onSuccess
-      type: "PATCH"
-      url: "#{Evercam.API_URL}cameras/#{Evercam.Camera.id}/timelapses/#{timelapse_id}?api_id=#{Evercam.User.api_id}&api_key=#{Evercam.User.api_key}"
-
-    $.ajax(settings)
-
 deleteTimelapse = ->
   $('#divTimelapses').on 'click', '.delete-btn', ->
     timelapse_id = $(this).attr("data-val")
@@ -436,6 +351,7 @@ clearForm = ->
   $("#row_date_range").slideUp()
   $('#chkTimeRangeAlways').iCheck('check');
   $("#row_time_range").slideUp()
+  $('#timelapse-form .caption').html 'New Timelapse'
 
 change_date_format = (date) ->
   if date isnt ""
