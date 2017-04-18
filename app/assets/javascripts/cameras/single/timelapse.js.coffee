@@ -99,7 +99,7 @@ setDate = (is_always, datetime, format, default_val) ->
 
 copyToClipboard = ->
   $('#divTimelapses').on "click", ".copy-to-clipboard", ->
-    timelapse_id = $(this).attr("data-val");
+    timelapse_id = $(this).attr("data-val")
     elem = document.getElementById("txtHlsUrl#{timelapse_id}")
     # create hidden text element, if it doesn't already exist
     targetId = '_hiddenCopyText_'
@@ -278,21 +278,21 @@ editTimelapse = ->
     $("#txt_timelapse_id").val(timelapse_id)
 
     if $("#txt_date_always#{timelapse_id}").val() is "false"
-      $('#chkDateRange').iCheck('check');
+      $('#chkDateRange').iCheck('check')
       $("#txt_from_date").val(setDate(false, from_date, "d/m/Y", ""))
       $("#txt_to_date").val(setDate(false, to_date, "d/m/Y", ""))
       $("#row_date_range").slideDown()
     else
-      $('#chkDateRangeAlways').iCheck('check');
+      $('#chkDateRangeAlways').iCheck('check')
       $("#txt_from_date").val("")
       $("#txt_to_date").val("")
 
     if $("#txt_time_always#{timelapse_id}").val() is "true"
-      $('#chkTimeRangeAlways').iCheck('check');
+      $('#chkTimeRangeAlways').iCheck('check')
       $("#txt_from_time").val("00:00")
       $("#txt_to_time").val("23:59")
     else
-      $('#chkTimeRange').iCheck('check');
+      $('#chkTimeRange').iCheck('check')
       $("#txt_from_time").val(setDate(false, from_date, "H:i", "00:00"))
       $("#txt_to_time").val(setDate(false, to_date, "H:i", "00:00"))
       $("#row_time_range").slideDown()
@@ -347,9 +347,9 @@ clearForm = ->
   $("#txt_to_date").val("")
   $("#txt_from_time").val("00:00")
   $("#txt_to_time").val("23:59")
-  $('#chkDateRangeAlways').iCheck('check');
+  $('#chkDateRangeAlways').iCheck('check')
   $("#row_date_range").slideUp()
-  $('#chkTimeRangeAlways').iCheck('check');
+  $('#chkTimeRangeAlways').iCheck('check')
   $("#row_time_range").slideUp()
   $('#timelapse-form .caption').html 'New Timelapse'
 
