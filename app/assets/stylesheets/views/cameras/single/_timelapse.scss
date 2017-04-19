@@ -1,6 +1,10 @@
 .tab_timelapse {
   background-color: $white;
 
+  .nav-tabs {
+    border-bottom: 0px;
+  }
+
   .video-js .vjs-big-play-button {
     border-radius: 1em !important;
     height: 1.6em;
@@ -15,16 +19,17 @@
   }
 
   .card {
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.26);
     background: white;
     border-radius: 2px;
+    font-weight: normal;
     overflow: auto;
     user-select: none;
     animation: fly-in-from-left .5s 1s ease both;
     transform-origin: top left;
     padding: 1.5rem;
     margin-bottom: 30px;
-    min-height: 340px !Important;
+    min-height: 550px !Important;
   }
 
   .card:nth-child(3n) {
@@ -57,7 +62,7 @@
 
   .card .snapstack-loading {
     width: 100%;
-    height: 215px;
+    height: 300px;
     text-align: center;
     vertical-align: middle;
     min-height: 100px;
@@ -113,8 +118,6 @@
 
   .delete-timelapse {
     position: absolute;
-    bottom: 46px;
-    right: 30px;
     z-index: 100;
   }
 
@@ -143,11 +146,11 @@
   }
 
   label {
-    font-size: 14px;
+    /*font-size: 14px;*/
   }
 
   input {
-    font-size: 12px;
+    /*font-size: 12px;*/
   }
 
   .green {
@@ -176,7 +179,7 @@
   }
 
   .txt-width {
-    width: 95%;
+    width: 90%;
     border-right: 0;
   }
 
@@ -237,11 +240,8 @@
 
   .tbl-hd2 {
     float: left;
-    margin-left: 0;
-    padding-bottom: 5px;
     padding-left: 15px;
     padding-right: 15px;
-    text-align: left;
   }
 
   .video-bg-width{
@@ -283,7 +283,7 @@
     background-image: none;
     filter: none;
     border: 0;
-    padding: 6px 5px 7px;
+    padding: 9px 6px 9px;
     margin-left: -4px;
     border-top: solid 1px $main-grey;
     border-right: solid 1px $main-grey;
